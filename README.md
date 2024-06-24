@@ -18,6 +18,7 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 
 ```bash
 git clone https://github.com/ddjunho/BinanceVolatilityBot.git
+cd BinanceVolatilityBot
 pip install .
 ```
 
