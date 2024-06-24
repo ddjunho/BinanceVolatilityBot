@@ -1,4 +1,4 @@
-BinanceVolatilityBot
+# BinanceVolatilityBot
 BinanceVolatilityBot은 Binance API를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
 
 설치
