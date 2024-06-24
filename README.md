@@ -38,7 +38,7 @@ chat_id = 'your_telegram_chat_id'
 프로젝트를 실행하여 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
 
 ```bash
-nohup python3 volatility_strategy_binance_auto.py > output.log &
+nohup python3 BinanceVolatilityBot.py > output.log &
 ```
 테스트
 간단한 테스트를 수행하려면 tests/test_binance_volatility_bot.py 파일을 실행합니다.
