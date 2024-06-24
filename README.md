@@ -13,11 +13,10 @@ tests/test_binance_volatility_bot.py: BinanceVolatilityBot.py 파일의 간단�
 
 의존성 설치: 필요한 패키지들을 설치합니다. 주로 requests, pandas, numpy, python-binance 등의 패키지가 필요할 수 있습니다.
 
-bash
-코드 복사
-pip install requests pandas numpy python-binance
+'''bash
 봇 실행: 다음 명령으로 BinanceVolatilityBot.py 파일을 실행합니다.
-
+pip install requests pandas numpy python-binance
+'''
 bash
 코드 복사
 python BinanceVolatilityBot/BinanceVolatilityBot.py
