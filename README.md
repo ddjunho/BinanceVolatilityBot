@@ -54,7 +54,7 @@ chat_id = 'your_telegram_chat_id'
 
 ## 실행
 
-프로젝트를 실행하여 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
+백그라운드로 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
 
 ```bash
 nohup python3 BinanceVolatilityBot.py > output.log &
