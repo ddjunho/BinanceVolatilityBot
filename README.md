@@ -8,8 +8,6 @@ BinanceVolatilityBot은 CCXT – 암호화폐 교환 거래 라이브러리를 �
 
  [![binancecoinm](https://user-images.githubusercontent.com/1294454/117738721-668c8d80-b205-11eb-8c49-3fad84c4a07f.jpg)](https://accounts.binance.com/en/register?ref=D7YA7CLY)                                            [![CCXT Certified](https://img.shields.io/badge/CCXT-Certified-green.svg)](https://github.com/ccxt/ccxt/wiki/Certification)  [![CCXT Pro](https://img.shields.io/badge/CCXT-Pro-black)](https://ccxt.pro)  [![Sign up with Binance COIN-M using CCXT's referral link for a 10% discount!](https://img.shields.io/static/v1?label=Fee&message=%2d10%25&color=orange)](https://accounts.binance.com/en/register?ref=D7YA7CLY)   
  
-[ccxt library](https://docs.ccxt.com)
-
 #### ***Thank you CCXT!***
 
 ## 설정
