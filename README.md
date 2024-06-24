@@ -1,6 +1,6 @@
 # BinanceVolatilityBot
 
-BinanceVolatilityBot은 CCXT – 암호화폐 교환 거래 라이브러리를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
+BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
 
 ## [CCXT – CryptoCurrency eXchange Trading Library](https://github.com/ccxt/ccxt/tree/master)
 
