@@ -1,6 +1,17 @@
 # BinanceVolatilityBot
-BinanceVolatilityBot은 Binance API를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
+BinanceVolatilityBot은 CCXT – 암호화폐 교환 거래 라이브러리를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
 
+## CCXT – CryptoCurrency eXchange Trading Library
+
+### [Install](#install) · [Usage](#usage) · [Manual](https://github.com/ccxt/ccxt/wiki) · [FAQ](https://github.com/ccxt/ccxt/wiki/FAQ) · [Examples](https://github.com/ccxt/ccxt/tree/master/examples) · [Contributing](https://github.com/ccxt/ccxt/blob/master/CONTRIBUTING.md) · [Social](#social)
+
+ [![binancecoinm](https://user-images.githubusercontent.com/1294454/117738721-668c8d80-b205-11eb-8c49-3fad84c4a07f.jpg)](https://accounts.binance.com/en/register?ref=D7YA7CLY)                                 binancecoinm           [Binance COIN-M](https://accounts.binance.com/en/register?ref=D7YA7CLY)                                [![API Version *](https://img.shields.io/badge/*-lightgray)](https://binance-docs.github.io/apidocs/delivery/en/)              cex   [![CCXT Certified](https://img.shields.io/badge/CCXT-Certified-green.svg)](https://github.com/ccxt/ccxt/wiki/Certification)  [![CCXT Pro](https://img.shields.io/badge/CCXT-Pro-black)](https://ccxt.pro)  [![Sign up with Binance COIN-M using CCXT's referral link for a 10% discount!](https://img.shields.io/static/v1?label=Fee&message=%2d10%25&color=orange)](https://accounts.binance.com/en/register?ref=D7YA7CLY)   
+ 
+https://github.com/ccxt/ccxt/tree/master
+
+https://docs.ccxt.com
+
+#### ***Thank you CCXT!***
 
 ## 설정
 
