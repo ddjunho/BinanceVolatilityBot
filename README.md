@@ -1,7 +1,8 @@
 # BinanceVolatilityBot
 BinanceVolatilityBot은 Binance API를 이용하여 자동매매 봇을 구현한 프로젝트입니다. 이 봇은 변동성 돌파 전략과 EMA 기반 트레이딩 전략을 적용하여 자동으로 거래를 수행합니다.
 
-설치
+
+## 설정
 패키지 설치
 
 이 프로젝트를 실행하기 위해서는 먼저 패키지를 설치해야 합니다. 아래 명령어를 사용하여 설치할 수 있습니다.
@@ -34,7 +35,9 @@ telepot_bot_id.py 파일을 작성하여 Telegram 봇의 API 토큰과 채팅 ID
 token = 'your_telegram_bot_token'
 chat_id = 'your_telegram_chat_id'
 ```
-실행
+
+
+## 실행
 프로젝트를 실행하여 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
 
 ```bash
