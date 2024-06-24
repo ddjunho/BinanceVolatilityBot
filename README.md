@@ -17,6 +17,7 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 이 프로젝트를 실행하기 위해서는 먼저 패키지를 설치해야 합니다. 아래 명령어를 사용하여 설치할 수 있습니다.
 
 ```bash
+git clone https://github.com/ddjunho/BinanceVolatilityBot.git
 pip install .
 ```
 
