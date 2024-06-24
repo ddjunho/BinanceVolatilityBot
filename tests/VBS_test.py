@@ -6,7 +6,7 @@ import ccxt
 ################ 백테스트 ################
 
 # 백테스트 기본 셋팅
-from binance_keys import api_key, api_secret
+from BinanceVolatilityBot.binance_keys import api_key, api_secret
 
 exchange = ccxt.binance({
     'rateLimit': 1000,
