@@ -10,6 +10,7 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
  
 #### ***Thank you CCXT!***
 
+
 ## 설정
 
 ### 패키지 설치
@@ -50,6 +51,7 @@ token = 'your_telegram_bot_token'
 chat_id = 'your_telegram_chat_id'
 ```
 
+
 ## 실행
 
 프로젝트를 실행하여 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
@@ -67,6 +69,7 @@ pytest tests/test_binance_volatility_bot.py
 ```
 
 테스트는 정상적으로 작동하는지 확인하고, 필요한 경우 추가적인 유닛 테스트를 작성하여 기능을 검증할 수 있습니다.
+
 
 ## ***주의사항***
 
