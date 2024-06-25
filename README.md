@@ -70,7 +70,14 @@ timeframe = '6h'
 
 여기서도 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 5분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
 ### 예측 기능
-predict_price는 Auto ARIMA 모델을 사용하여 금융 자산(예: 주식 또는 암호화폐)의 미래 가격을 예측하는 기능입니다. 이 함수는 특정 미래 시간 간격에 대한 종가를 예측하고 고가와 저가를 추정합니다. 함수의 구성 요소와 프로세스를 자세히 설명하겠습니다.
+ARIMA(Autoregressive Integrated Moving Average)는 시계열 데이터를 예측하기 위해 사용되는 모델로, 세 가지 주요 요소로 구성됩니다:<br>
+
+자기회귀(AR, Autoregressive): 과거 값들이 현재 값에 영향을 미치는 모델입니다.<br>
+누적차분(I, Integrated): 데이터를 정상 상태로 변환하기 위해 필요한 차분 과정입니다.<br>
+이동평균(MA, Moving Average): 백색 잡음에 의해 설명되는 현재 값의 모델입니다.<br>
+이 세 가지 요소를 결합하여 ARIMA 모델은 시계열 데이터의 패턴을 설명하고 예측하는 데 사용됩니다.<br>
+
+predict_price는 이 ARIMA 모델을 사용하여 금융 자산(예: 주식 또는 암호화폐)의 미래 가격을 예측하는 기능입니다. 이 함수는 특정 미래 시간 간격에 대한 종가를 예측하고 고가와 저가를 추정합니다. 함수의 구성 요소와 프로세스를 자세히 설명하겠습니다.
 
 #### 함수 매개변수
 prediction_time: 예측 시간 간격을 지정하는 문자열 (예: '1h'는 1시간, '3m'는 3분 등).<br>
