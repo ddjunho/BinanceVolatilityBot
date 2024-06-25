@@ -44,7 +44,7 @@ timeframe = '6h'
 
 실제로 이렇게 수익을 얻을 수 있으면 좋겠지만 현실은 그렇지 않습니다. 큰 세력이 매물대를 뚫고 한 번에 고가 갱신을 해버리기 때문에 적절한 매수 가격대를 구하지 못하고 높은 가격에 사고 낮은 가격에 파는 대참사가 있을 수 있습니다.
 
-그리하여 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/edit/main/README.md#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 15분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
+그리하여 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 15분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
 
 ### EMA 기반 추세 추종 전략
 이 전략은 이동 평균을 기반으로 한 자동매매 전략입니다. 여기서는 9일, 21일, 54일 이동 평균을 사용하여 주가의 추세와 모멘텀을 평가하고, 매수 조건을 설정합니다. 이 매수 전략은 자동매매 시스템에 적용될 수 있습니다.
@@ -68,7 +68,7 @@ timeframe = '6h'
 조건: (ema_9 - ema_21)가 전일의 (ema_9 - ema_21)보다 클 때.<br>
 설명: 이 조건은 단기 이동 평균이 중기 이동 평균에 비해 더 빠르게 상승하고 있음을 나타냅니다. 자동매매 시스템은 이 경향을 감지하여 단기적인 매수 모멘텀을 포착할 수 있습니다.<br>
 
-여기서도 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/edit/main/README.md#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 5분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
+여기서도 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 5분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
 ### 예측 기능
 predict_price는 Auto ARIMA 모델을 사용하여 금융 자산(예: 주식 또는 암호화폐)의 미래 가격을 예측하는 기능입니다. 이 함수는 특정 미래 시간 간격에 대한 종가를 예측하고 고가와 저가를 추정합니다. 함수의 구성 요소와 프로세스를 자세히 설명하겠습니다.
 
