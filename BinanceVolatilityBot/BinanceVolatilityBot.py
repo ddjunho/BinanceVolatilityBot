@@ -56,8 +56,9 @@ def handle(msg):
             send_to_telegram('Stopping...')
             stop = True
         elif msg['text'] == '/help':
-            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/Condition_fulfillment_symbols - 조건 충족 코인')
-            send_to_telegram(f'/after_3m - 3분뒤 가격예측\n/after_5m - 5분뒤 가격예측\n/after_15m - 15분뒤 가격예측\n/after_1h - 1시간뒤 가격예측\n/after_6h - 6시간뒤 가격예측\n/after_1d - 1일뒤 가격예측')
+            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인')
+        elif msg['text'] == '/predict':
+            send_to_telegram(f'/predict_3m - 3분뒤 가격예측\n/predict_5m - 5분뒤 가격예측\n/predict_15m - 15분뒤 가격예측\n/predict_1h - 1시간뒤 가격예측\n/predict_6h - 6시간뒤 가격예측\n/predict_1d - 1일뒤 가격예측')
         elif msg['text'] == '/reset_signals':
             reset_signals
         elif msg['text'] == '/leverage':
@@ -133,38 +134,37 @@ def handle(msg):
             Profit_Percentage = 190 # 0.526315...
         elif msg['text'] == '/Profit_Percentage(200)':
             Profit_Percentage = 200 # 0.5   
-
-        elif msg['text'] == '/after_6h':
+        elif msg['text'] == '/predict_6h':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='6h')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
             send_to_telegram(f'predicted_low_price -> {predicted_low_price}')
             send_to_telegram(f'predicted_close_price -> {predicted_close_price}')
-        elif msg['text'] == '/after_3m':
+        elif msg['text'] == '/predict_3m':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='3m')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
             send_to_telegram(f'predicted_low_price -> {predicted_low_price}')
             send_to_telegram(f'predicted_close_price -> {predicted_close_price}')
-        elif msg['text'] == '/after_5m':
+        elif msg['text'] == '/predict_5m':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='5m')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
             send_to_telegram(f'predicted_low_price -> {predicted_low_price}')
             send_to_telegram(f'predicted_close_price -> {predicted_close_price}')
-        elif msg['text'] == '/after_15m':
+        elif msg['text'] == '/predict_15m':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='15m')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
             send_to_telegram(f'predicted_low_price -> {predicted_low_price}')
             send_to_telegram(f'predicted_close_price -> {predicted_close_price}')
-        elif msg['text'] == '/after_1h':
+        elif msg['text'] == '/predict_1h':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='1h')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
             send_to_telegram(f'predicted_low_price -> {predicted_low_price}')
             send_to_telegram(f'predicted_close_price -> {predicted_close_price}')
-        elif msg['text'] == '/after_1d':
+        elif msg['text'] == '/predict_1d':
             send_to_telegram('모델학습 및 예측 중...')
             predict_price(prediction_time='1d')
             send_to_telegram(f'predicted_high_price -> {predicted_high_price}')
@@ -561,12 +561,12 @@ def generate_ema_signals(symbol, df):
     ema_54 = calculate_ema(df, 54)
     Buy_conditions = ema_9.iloc[-1] > ema_21.iloc[-1]
     Sell_conditions = ema_9.iloc[-1] < ema_21.iloc[-1]
-    rsi_Buy_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) > (ema_21.iloc[-1] - ema_54.iloc[-1])
-    rsi_Sell_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) < (ema_21.iloc[-1] - ema_54.iloc[-1])
-    Previous_rsi_Buy_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) > (ema_9.iloc[-2] - ema_21.iloc[-2])
-    Previous_rsi_Sell_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) < (ema_9.iloc[-2] - ema_21.iloc[-2])
+    ema_Buy_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) > (ema_21.iloc[-1] - ema_54.iloc[-1])
+    ema_Sell_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) < (ema_21.iloc[-1] - ema_54.iloc[-1])
+    Previous_ema_Buy_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) > (ema_9.iloc[-2] - ema_21.iloc[-2])
+    Previous_ema_Sell_conditions = (ema_9.iloc[-1] - ema_21.iloc[-1]) < (ema_9.iloc[-2] - ema_21.iloc[-2])
     
-    if ema_buy_signal == False and Buy_conditions and rsi_Buy_conditions and Previous_rsi_Buy_conditions:
+    if ema_buy_signal == False and Buy_conditions and ema_Buy_conditions and Previous_ema_Buy_conditions:
         if waiting_ema_buy_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
             predict_price(prediction_time='5m')
@@ -588,7 +588,7 @@ def generate_ema_signals(symbol, df):
             now = datetime.datetime.now()
             ema_entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
     
-    elif ema_sell_signal == False and Sell_conditions and rsi_Sell_conditions and Previous_rsi_Sell_conditions:
+    elif ema_sell_signal == False and Sell_conditions and ema_Sell_conditions and Previous_ema_Sell_conditions:
         if waiting_ema_sell_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
             predict_price(prediction_time='5m')
@@ -728,6 +728,8 @@ while True:
             schedule.run_pending()
 
             if start == True:
+                send_to_telegram("***주의사항***\n\n현재는 이더리움(ETHUSDT)만 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
+
                 # 변동성 조건 임의 계산
                 range = (df['high'].iloc[-2] - df['low'].iloc[-2]) * k_value
                 target_long = df['close'].iloc[-2] + range
