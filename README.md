@@ -18,7 +18,7 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 ![변동성 돌파 전략 예시 사진](https://github.com/ddjunho/binanceauto/blob/main/img/volatility_explained.png)(https://www.tradingview.com/chart/TSLA/vlvAMwqN-Volatility-Breakout-Trading-Explained/)
 
 
-변동성 돌파 전략 핵심
+#### 변동성 돌파 전략 원리
 
 돌파 가격 = 현재 시가 + (이전 고가 - 이전 저가) * k값 
 
