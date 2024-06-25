@@ -15,11 +15,14 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 ### 변동성 돌파 전략
 
 변동성 돌파 전략 핵심
-돌파 가격 = 오늘 시가 + (전일 고가 - 전일 저가) * k. k 값은 0.4~0.6 
+
+돌파 가격 = 오늘 시가 + (전일 고가 - 전일 저가) * k값 
 오늘 가격이 돌파 가격을 넘어가면 매수
 다음날 아침 장이 시작하면 모두 매도
 
 변동성 돌파 전략 예시
+![변동성 돌파 전략 예시 사진](https://github.com/ddjunho/binanceauto/blob/main/img/volatility_explained.png)(https://www.tradingview.com/chart/TSLA/vlvAMwqN-Volatility-Breakout-Trading-Explained/)
+
 전일 시가 : $920, 전일 고가 : $1000, 전일 저가 : $900, 전일 종가 $960
 오늘 시가 : $960
 돌파 가격 = $960 + ($1000 - $900) * 0.6 = $1020
