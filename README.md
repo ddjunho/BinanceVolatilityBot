@@ -38,14 +38,21 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 ![매수포지션 MDD](https://github.com/ddjunho/binanceauto/blob/main/img/buy_strategy_drawdown.png)
 MDD(Most Drawdown, 최대 손실 낙폭)는 누적 이익률의 최대값(Peak)에서 가장 크게 하락한 비율을 백분율로 나타냅니다.
 
-timeframe = '6h'
-
 매수 전략 - 최종 누적 수익률: 55.5006352412013%, MDD: -9.999630944195218%, 최적의 K값: 0.513664700396083
+
+공매도 또한 원리는 같습니다.
+![돌파전략 공매도시 순이익](https://github.com/ddjunho/binanceauto/blob/main/img/short_strategy_cumulative_profit_price.png)
+![매도포지션 MDD](https://github.com/ddjunho/binanceauto/blob/main/img/short_strategy_drawdown.png)
+MDD(Most Drawdown, 최대 손실 낙폭)
+
+공매도 전략 - 최종 누적 수익률:  54.35987463558776 %, MDD:  -8.271748731020926 %, 최적의 K값:  0.8763195978770201
+
+지난 200간은 상승장이라 k값이 보수적으로 잡힌것을 볼 수 있습니다.
 
 실제로 이렇게 수익을 얻을 수 있으면 좋겠지만 현실은 그렇지 않습니다. 큰 세력이 매물대를 뚫고 한 번에 고가 갱신을 해버리기 때문에 적절한 매수 가격대를 구하지 못하고 높은 가격에 사고 낮은 가격에 파는 대참사가 있을 수 있습니다.
 
-그리하여 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 15분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
-
+그리하여 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 15분 뒤의 가격을 예측하고 적합한 가격에 매매를 진행할 수 있도록 하였습니다.
+<br><br><br>
 ### EMA 기반 추세 추종 전략
 이 전략은 이동 평균을 기반으로 한 자동매매 전략입니다. 여기서는 9일, 21일, 54일 이동 평균을 사용하여 주가의 추세와 모멘텀을 평가하고, 매수 조건을 설정합니다. 이 매수 전략은 자동매매 시스템에 적용될 수 있습니다.
 ![ema전략](https://github.com/ddjunho/binanceauto/blob/main/img/ema.png)
@@ -70,7 +77,7 @@ timeframe = '6h'
 
 여기서도 [***Auto ARIMA***](https://github.com/ddjunho/BinanceVolatilityBot/tree/main?tab=readme-ov-file#%EC%98%88%EC%B8%A1-%EA%B8%B0%EB%8A%A5) 모델을 사용해서 5분 뒤의 최저 가격을 예측하고 해당 가격보다 낮을 때 매수를 진행할 수 있도록 하였습니다.<br><br><br>
 ### 예측 기능
-ARIMA(Autoregressive Integrated Moving Average)는 시계열 데이터를 예측하기 위해 사용되는 모델로, 세 가지 주요 요소로 구성됩니다:<br>
+ARIMA(Autoregressive Integrated Moving Average)모델은 시계열 데이터를 예측하기 위해 사용되는 모델로, 세 가지 주요 요소로 구성됩니다:<br>
 
 자기회귀(AR, Autoregressive): 과거 값들이 현재 값에 영향을 미치는 모델입니다.<br>
 누적차분(I, Integrated): 데이터를 정상 상태로 변환하기 위해 필요한 차분 과정입니다.<br>
