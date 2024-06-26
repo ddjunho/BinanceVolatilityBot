@@ -32,16 +32,23 @@ BinanceVolatilityBot은 CCXT를 이용하여 자동매매 봇을 구현한 프�
 
 현재 장중에 돌파 가격 $1020을 넘어서면 매수해서 다음 시작시 모두 매도
 #### 오늘 매수해서 내일 팔기 때문에 시장 심리에 휘둘리지 않습니다.
-이러한 매매 전략을 백테스팅으로 구현한 결과입니다. 백테스팅 코드는 [backtest.py](https://github.com/ddjunho/BinanceVolatilityBot/blob/main/tests/backtest.py)에서 확인할 수 있습니다.
+아래는 이러한 매매 전략을 백테스팅으로 구현한 결과입니다. 백테스팅 코드는 [backtest.py](https://github.com/ddjunho/BinanceVolatilityBot/blob/main/tests/backtest.py)에서 확인할 수 있습니다.
+
+롱 포지션 : 
 ![돌파전략 매수시 순이익](https://github.com/ddjunho/binanceauto/blob/main/img/buy_strategy_cumulative_profit_price.png)
 빨간색이 순 이익입니다. 수수료를 제외하고 매수 포지션만 잡을 시 200일간의 누적 수익을 지표로 나타내었습니다.
+
+MDD :
 ![매수포지션 MDD](https://github.com/ddjunho/binanceauto/blob/main/img/buy_strategy_drawdown.png)
 MDD(Most Drawdown, 최대 손실 낙폭)는 누적 이익률의 최대값(Peak)에서 가장 크게 하락한 비율을 백분율로 나타냅니다.
 
 매수 전략 - 최종 누적 수익률: 55.5006352412013%, MDD: -9.999630944195218%, 최적의 K값: 0.513664700396083
 
 공매도 또한 원리는 같습니다.
+
+숏 포지션 : 
 ![돌파전략 공매도시 순이익](https://github.com/ddjunho/binanceauto/blob/main/img/short_strategy_cumulative_profit_price.png)
+MDD : 
 ![매도포지션 MDD](https://github.com/ddjunho/binanceauto/blob/main/img/short_strategy_drawdown.png)
 MDD(Most Drawdown, 최대 손실 낙폭)
 
