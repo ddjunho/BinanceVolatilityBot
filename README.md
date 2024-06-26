@@ -224,7 +224,7 @@ nohup python3 BinanceVolatilityBot.py > output.log &
 ### 테스트
 
 돌파의 기준인 k값을 구하려면 backtest.py 을 실행합니다.
-매수와 매도의 최종 누적 수익률을 구하고 최적의 k값을 찾을 수 있습니다. 현재값 : 0.55
+매수와 매도의 최종 누적 수익률을 구하고 최적의 k값을 찾을 수 있습니다. 기본값 : 0.55
 
 ```bash
 python3 tests/backtest.py
