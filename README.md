@@ -167,7 +167,9 @@ binance_keys.py 파일을 작성하여 Binance API 키와 시크릿 키를 설�
 api_key = 'your_binance_api_key'
 api_secret = 'your_binance_api_secret'
 ```
-
+```bash
+echo -e "api_key = 'your_binance_api_key'\napi_secret = 'your_binance_api_secret'" > BinanceVolatilityBot/binance_keys.py
+```
 ### Telegram 설정
 [BotFather](https://telegram.me/BotFather)를 통해 봇을 생성 후
 telepot_bot_id.py 파일을 작성하여 Telegram 봇의 API 토큰과 채팅 ID를 설정합니다.
@@ -177,6 +179,9 @@ telepot_bot_id.py 파일을 작성하여 Telegram 봇의 API 토큰과 채팅 ID
 
 token = 'your_telegram_bot_token'
 chat_id = 'your_telegram_chat_id'
+```
+```bash
+echo -e "token = 'your_telegram_bot_token'\nchat_id = 'your_telegram_chat_id'" > BinanceVolatilityBot/telepot_bot_id.py
 ```
 ### Telegram 사용법
 이 Telegram 봇은 암호화폐 자동매매 시스템을 위해 설계되었습니다. 사용자가 Telegram을 통해 명령어를 입력하면, 해당 봇은 사용자가 설정한 조건에 따라 자동으로 암호화폐를 매매하는 기능을 제공합니다. 각 명령어를 정확히 입력하여 원하는 설정을 변경하거나 정보를 얻을 수 있습니다.
