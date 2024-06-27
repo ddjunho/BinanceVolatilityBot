@@ -112,21 +112,20 @@ model = auto_arima(df['y'], seasonal=False, suppress_warnings=True)<br>
 #### 예측 시간 계산
 prediction_time에 따라 추가할 분(minute)을 계산합니다.
 ```python
-if prediction_time == '6h':
-    minutes_to_add = 60*6 + add_mintes
-elif prediction_time == '3m':
-    minutes_to_add = 3 + add_mintes
-elif prediction_time == '5m':
-    minutes_to_add = 5 + add_mintes  
-elif prediction_time == '10m':
-    add_mintes = 5
-    minutes_to_add = 5 + add_mintes  
-elif prediction_time == '15m':
-    minutes_to_add = 15 + add_mintes
-elif prediction_time == '1h':
-    minutes_to_add = 60 + add_mintes
-elif prediction_time == '1d':
-    minutes_to_add = 24 * 60 + add_mintes
+    if prediction_time == '6h':
+        minutes_to_add = 60*6
+    elif prediction_time == '3m':
+        minutes_to_add = 3
+    elif prediction_time == '5m':
+        minutes_to_add = 5
+    elif prediction_time == '15m':
+        minutes_to_add = 15
+    elif prediction_time == '30m':
+        minutes_to_add = 30
+    elif prediction_time == '1h':
+        minutes_to_add = 60
+    elif prediction_time == '1d':
+        minutes_to_add = 24 * 60
 ```
 #### 미래 데이터 포인트 생성
 미래 시점에 대한 데이터를 생성합니다.
@@ -152,7 +151,46 @@ predicted_low_price = conf_int[0][0]
 #### 결론
 이 함수는 주어진 시간 간격 후의 종가를 예측하고, 신뢰 구간을 사용하여 고가와 저가를 추정하는 과정을 자동화합니다.<br><br>
 
+### 리스크 관리
+#### 역추세 돌파시
+predict_price(prediction_time='30m')<br>
 
+#### 과매수 및 과매도 신호
+스토캐스틱 RSI : RSI가 70을 넘어서면 과매수 상태로 간주될 수 있고, 30 밑으로 떨어지면 과매도 상태로 간주됩니다.<br>
+스토캐스틱 RSI의 이탈 지점을 통해 새로운 포지션에 진입을 제한 하는 데에 활용하였습니다.<br>
+```python
+def stochastic_rsi(data, period=14, smooth_k=3, smooth_d=3):
+    """
+    스토케스틱 RSI를 계산하는 함수.
+
+    매개변수:
+    - data: 'high', 'low', 'close' 열을 포함한 DataFrame.
+    - period: RSI 기간 (기본값은 14).
+    - smooth_k: %K를 부드럽게 만들기 위한 기간 (기본값은 3).
+    - smooth_d: %D를 부드럽게 만들기 위한 기간 (기본값은 3).
+    반환값:
+    - 'stoch_rsi_k' 및 'stoch_rsi_d'.
+    """
+    # RSI 계산
+    data = calculate_rsi(data, period)
+
+    # 스토케스틱 RSI (%K) 계산
+    min_rsi = data['rsi'].rolling(window=period, center = False).min()
+    max_rsi = data['rsi'].rolling(window=period, center = False).max()
+    stoch = 100 * (data['rsi'] - min_rsi) / (max_rsi - min_rsi)
+    stoch_rsi_k = stoch.rolling(window=smooth_k, center = False).mean()
+    # 스토케스틱 RSI (%D) 계산
+    stoch_rsi_d = stoch_rsi_k.rolling(window=smooth_d, center = False).mean()
+    return stoch_rsi_k, stoch_rsi_d
+```
+과매수 이탈 지점 : stoch_rsi_k.iloc[-1] < 100 and stoch_rsi_d.iloc[-1] < 95<br>
+과매도 이탈 지점 : stoch_rsi_k.iloc[-1] > 0 and stoch_rsi_d.iloc[-1] > 5<br>
+
+#### Profit_Percentage일정 이상 손익시 포지션 종료
+
+손절
+long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2])/2 
+short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2])/2
 ## 자동매매 시작하기
 
 ### 패키지 설치
