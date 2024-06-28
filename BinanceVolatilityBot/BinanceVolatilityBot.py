@@ -448,17 +448,21 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             waiting_buy_signal = True
                     # 현재 가격이 예측한 최적 매수가격보다 낮으면 매수 주문 실행
                     if df['close'].iloc[-1] < predicted_buy_low_price:
-                        long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
-                        limit_order = place_limit_order(symbol, 'buy', long_quantity, df['close'].iloc[-1])
                         long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2])/2 
                         buy_price = df['close'].iloc[-1]
-                        send_to_telegram(f"매수 - Price: {buy_price}, Quantity: {long_quantity}")
-                        send_to_telegram(f"손절가 - {long_stop_loss}")
-                        buy_signal = True
-                        upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
-                        future_close_price = upper_band.iloc[-1] # 과매수
-                        now = datetime.datetime.now()
-                        entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
+                        if long_stop_loss > buy_price:
+                            waiting_buy_signal = False
+                            send_to_telegram(f"손절가보다 매수가격이 더 작기에 최적매수가격을 재지정합니다.")
+                        else:
+                            long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+                            limit_order = place_limit_order(symbol, 'buy', long_quantity, df['close'].iloc[-1])
+                            send_to_telegram(f"매수 - Price: {buy_price}, Quantity: {long_quantity}")
+                            send_to_telegram(f"손절가 - {long_stop_loss}")
+                            buy_signal = True
+                            upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
+                            future_close_price = upper_band.iloc[-1] # 과매수
+                            now = datetime.datetime.now()
+                            entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
 
     if sell_signal == False and is_doji == False:
         if stoch_rsi_k.iloc[-1] > 0 and stoch_rsi_d.iloc[-1] > 5:
@@ -483,17 +487,21 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             waiting_sell_signal = True
                     # 현재 가격이 예측한 최적 매도가격보다 높으면 매도 주문 실행
                     if df['close'].iloc[-1] > predicted_sell_high_price:
-                        short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
-                        limit_order = place_limit_order(symbol, 'sell', short_quantity, df['close'].iloc[-1])
                         short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2])/2
                         sell_price = df['close'].iloc[-1]
-                        send_to_telegram(f"매도 - Price: {df['close'].iloc[-1]}, Quantity: {short_quantity}")
-                        send_to_telegram(f"손절가 - {short_stop_loss}")
-                        sell_signal = True
-                        upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
-                        future_close_price = lower_band.iloc[-1] # 과매도
-                        now = datetime.datetime.now()
-                        entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
+                        if short_stop_loss < sell_price:
+                            waiting_sell_signal = False
+                            send_to_telegram(f"손절가보다 매도가격이 더 크기에 최적매도가격을 재지정합니다.")
+                        else:
+                            short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+                            limit_order = place_limit_order(symbol, 'sell', short_quantity, df['close'].iloc[-1])
+                            send_to_telegram(f"매도 - Price: {sell_price}, Quantity: {short_quantity}")
+                            send_to_telegram(f"손절가 - {short_stop_loss}")
+                            sell_signal = True
+                            upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
+                            future_close_price = lower_band.iloc[-1] # 과매도
+                            now = datetime.datetime.now()
+                            entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
 
     # 매수 또는 매도 신호가 발생한 경우
     if buy_signal or sell_signal:
