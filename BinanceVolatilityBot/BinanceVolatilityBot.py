@@ -624,17 +624,21 @@ def generate_ema_signals(symbol, df):
             waiting_ema_buy_signal = True
         # 현재 가격이 예측한 최적 매수가격보다 낮으면 매수 주문 실행
         if df['close'].iloc[-1] < ema_predicted_buy_low_price:
-            ema_long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
-            ema_limit_order = place_limit_order(symbol, 'buy', ema_long_quantity, df['close'].iloc[-1])
             ema_long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2]) / 2
             ema_buy_price = df['close'].iloc[-1]
-            send_to_telegram(f"ema 조건 충족\n매수 - Price: {ema_buy_price}, Quantity: {ema_long_quantity}")
-            send_to_telegram(f"손절가 - {ema_long_stop_loss}")
-            ema_buy_signal = True
-            upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
-            ema_future_close_price = upper_band.iloc[-1] # 과매수
-            now = datetime.datetime.now()
-            ema_entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
+            if ema_long_stop_loss > ema_buy_price:
+                waiting_ema_buy_signal = False
+                send_to_telegram(f"손절가보다 매수가격이 더 작기에 최적매수가격을 재지정합니다.")
+            else:
+                ema_long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+                ema_limit_order = place_limit_order(symbol, 'buy', ema_long_quantity, df['close'].iloc[-1])
+                send_to_telegram(f"ema 조건 충족\n매수 - Price: {ema_buy_price}, Quantity: {ema_long_quantity}")
+                send_to_telegram(f"손절가 - {ema_long_stop_loss}")
+                ema_buy_signal = True
+                upper_band, lower_band = calculate_bollinger_bands(df, window=20, num_std_dev=2.5)
+                ema_future_close_price = upper_band.iloc[-1] # 과매수
+                now = datetime.datetime.now()
+                ema_entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
     
     elif ema_sell_signal == False and Sell_conditions and ema_Sell_conditions and Previous_ema_Sell_conditions:
         if waiting_ema_sell_signal == False:
@@ -647,10 +651,13 @@ def generate_ema_signals(symbol, df):
             waiting_ema_sell_signal = True
         # 현재 가격이 예측한 최적 매도가격보다 높으면 매도 주문 실행
         if df['close'].iloc[-1] > ema_predicted_sell_high_price:
-            ema_short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
-            ema_limit_order = place_limit_order(symbol, 'sell', ema_short_quantity, df['close'].iloc[-1])
             ema_short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2]) / 2
             ema_sell_price = df['close'].iloc[-1]
+            if ema_short_stop_loss < ema_sell_price:
+                waiting_ema_sell_signal = False
+                send_to_telegram(f"손절가보다 매도가격이 더 크기에 최적매도가격을 재지정합니다.")
+            ema_short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+            ema_limit_order = place_limit_order(symbol, 'sell', ema_short_quantity, df['close'].iloc[-1])
             send_to_telegram(f"ema조건충족\n매도 - Price: {df['close'].iloc[-1]}, Quantity: {ema_short_quantity}")
             send_to_telegram(f"손절가 - {ema_short_stop_loss}")
             ema_sell_signal = True
