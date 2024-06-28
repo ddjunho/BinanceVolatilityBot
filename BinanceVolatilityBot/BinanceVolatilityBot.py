@@ -51,10 +51,13 @@ def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
     if content_type == 'text':
         if msg['text'] == '/start':
-            send_to_telegram('Starting...')
-            stop = False
-            postponement = False
-            start = True
+            if postponement == True: 
+                send_to_telegram("거래 재개")
+                postponement = False
+            else : 
+                send_to_telegram('Starting...')
+                stop = False
+                start = True
         elif msg['text'] == '/stop':
             send_to_telegram('Stopping...')
             stop = True
@@ -193,7 +196,7 @@ def postpone_trading():
     now = datetime.datetime.now()
     delay_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
     if stop == False:
-        send_to_telegram(f"{delay_time + datetime.timedelta(hours=(6 - delay_time.hour % 6))}까지 거래 연기")
+        send_to_telegram(f"UTC : {delay_time + datetime.timedelta(hours=(6 - delay_time.hour % 6))}까지 거래 연기")
         stop = True
     if (now >= delay_time + datetime.timedelta(hours=(6 - delay_time.hour % 6))):
         send_to_telegram("거래 재개")
@@ -424,7 +427,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
     # 매수 및 매도 주문 로직
     if buy_signal == False and is_doji == False:
         if stoch_rsi_k.iloc[-1]<100 and stoch_rsi_d.iloc[-1] < 95:
-            # 어제 종가보다 오늘 시가가 높고, 오늘 고가가 목표 롱 가격을 돌파한 경우 혹은 이중 돌파시
+            # 어제 종가보다 오늘 시가가 높고, 오늘 고가가 목표 롱 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] < df['close'].iloc[-2]) or (df['high'].iloc[-1] > target_long2):
                 if df['high'].iloc[-1] > target_long:
                     if waiting_buy_signal == False:
@@ -459,7 +462,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
 
     if sell_signal == False and is_doji == False:
         if stoch_rsi_k.iloc[-1] > 0 and stoch_rsi_d.iloc[-1] > 5:
-            # 어제 종가보다 오늘 시가가 낮고, 오늘 저가가 목표 숏 가격을 돌파한 경우 혹은 이중 돌파시
+            # 어제 종가보다 오늘 시가가 낮고, 오늘 저가가 목표 숏 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] > df['close'].iloc[-2]) or (df['low'].iloc[-1] < target_short2):
                 if df['low'].iloc[-1] < target_short:
                     if waiting_sell_signal == False:
@@ -469,6 +472,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             send_to_telegram(f"돌파가격 : {target_short}")
                             predicted_sell_high_price = predicted_high_price
                             send_to_telegram(f"최적매도가격 : {predicted_sell_high_price}")
+                            waiting_sell_signal = True
                         else:
                         # 15분 뒤 가격 예측 및 텔레그램 전송
                             predict_price(prediction_time='15m')
@@ -551,7 +555,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                     sell_signal = False
                     waiting_sell_signal = False
 
-            # 1프로 손익시 포지션 종료
+            # Profit_Percentage 손익시 포지션 종료
             if buy_signal == True:
                 if df['close'].iloc[-1]> predicted_buy_low_price + predicted_buy_low_price/Profit_Percentage :
                     place_limit_order(symbol, 'sell', long_quantity, df['close'].iloc[-1])
@@ -708,7 +712,7 @@ def generate_ema_signals(symbol, df):
                     ema_sell_signal = False
                     waiting_ema_sell_signal = False
 
-            # 1% 손익 시 포지션 종료
+            # Profit_Percentage 손익 시 포지션 종료
             if ema_buy_signal == True:
                 if df['close'].iloc[-1] > ema_predicted_buy_low_price + ema_predicted_buy_low_price / Profit_Percentage :
                     place_limit_order(symbol, 'sell', ema_long_quantity, df['close'].iloc[-1])
@@ -764,9 +768,9 @@ while True:
 
             schedule.run_pending()
 
-            if start == True:
-                send_to_telegram("***주의사항***\n\n현재는 이더리움(ETHUSDT)만 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
+            send_to_telegram("***주의사항***\n\n현재는 이더리움(ETHUSDT)만 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
 
+            if start == True:
                 # 변동성 조건 임의 계산
                 range = (df['high'].iloc[-2] - df['low'].iloc[-2]) * k_value
                 target_long = df['close'].iloc[-2] + range
