@@ -32,7 +32,7 @@ timeframe = '6h'
 
 # 레버리지 설정
 leverage = 4
-exchange.fapiPrivate_post_leverage({'symbol': symbol, 'leverage': leverage*2})
+exchange.fapiPrivate_post_leverage({'symbol': symbol, 'leverage': leverage*2+2})
 
 # 텔레그램으로 메시지를 보내는 함수
 def send_to_telegram(message):
@@ -64,7 +64,7 @@ def handle(msg):
         elif msg['text'] == '/help':
             send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인\n/postponing_trading - 거래연기하기')
         elif msg['text'] == '/predict':
-            send_to_telegram(f'/predict_3m - 3분뒤 가격예측\n/predict_5m - 5분뒤 가격예측\n/predict_15m - 15분뒤 가격예측\n/predict_1h - 1시간뒤 가격예측\n/predict_6h - 6시간뒤 가격예측\n/predict_1d - 1일뒤 가격예측')
+            send_to_telegram(f'/predict_3m - 3분뒤 가격예측\n/predict_5m - 5분뒤 가격예측\n/predict_15m - 15분뒤 가격예측\n/predict_30m - 30분뒤 가격예측\n/predict_1h - 1시간뒤 가격예측\n/predict_6h - 6시간뒤 가격예측\n/predict_1d - 1일뒤 가격예측')
         elif msg['text'] == '/postponing_trading':
             postponement = True
             postpone_trading()
@@ -263,6 +263,7 @@ def get_candles(exchange, symbol, timeframe='6h', limit=100):
     df = pd.DataFrame(data=candles, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     return df
+
 def predict_price(prediction_time='1h'):
     """Auto ARIMA로 다음 종가, 고가, 저가 가격 예측"""
 
@@ -324,11 +325,14 @@ def calculate_ema(data, period):
     ema = data['close'].ewm(span=period, adjust=False).mean()
     return ema
 
-
 def calculate_rsi(data, period=14):
     delta = data['close'].diff()
-    avg_gain = delta.where(delta > 0, 0).rolling(window=period, center = False).mean()
-    avg_loss = -delta.where(delta < 0, 0).rolling(window=period, center = False).mean()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.ewm(span=period, adjust=False).mean()
+    avg_loss = loss.ewm(span=period, adjust=False).mean()
+
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
     data['rsi'] = rsi
@@ -347,7 +351,7 @@ def stochastic_rsi(data, period=14, smooth_k=3, smooth_d=3):
     - 'stoch_rsi_k' 및 'stoch_rsi_d'.
     """
     # RSI 계산
-    data = calculate_rsi(data, period)
+    data = calculate_rsi(data, period+1)
 
     # 스토케스틱 RSI (%K) 계산
     min_rsi = data['rsi'].rolling(window=period, center = False).min()
@@ -359,7 +363,6 @@ def stochastic_rsi(data, period=14, smooth_k=3, smooth_d=3):
 
     return stoch_rsi_k, stoch_rsi_d
 
-
 def is_doji_candle(df, threshold=0.2):
     price_range = df['high'].iloc[-2] - df['low'].iloc[-2]
     body_range = abs(df['open'].iloc[-2] - df['close'].iloc[-2])
@@ -370,6 +373,11 @@ def is_doji_candle(df, threshold=0.2):
     else: 
         return False
 
+def calculate_volume_oscillator(data):
+    short_ema = data.ewm(span=5, adjust=False).mean()
+    long_ema = data.ewm(span=10, adjust=False).mean()
+    oscillator = (short_ema - long_ema) / short_ema * 100
+    return oscillator
 
 def reset_signals():
     global waiting_sell_signal, waiting_buy_signal
@@ -426,13 +434,13 @@ def volatility_breakout_strategy(symbol, df, k_value):
         is_doji = False
     # 매수 및 매도 주문 로직
     if buy_signal == False and is_doji == False:
-        if stoch_rsi_k.iloc[-1]<100 and stoch_rsi_d.iloc[-1] < 95:
+        if stoch_rsi_k.iloc[-2]<100 and stoch_rsi_d.iloc[-2] < 95:
             # 어제 종가보다 오늘 시가가 높고, 오늘 고가가 목표 롱 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] < df['close'].iloc[-2]) or (df['high'].iloc[-1] > target_long2):
                 if df['high'].iloc[-1] > target_long:
                     if waiting_buy_signal == False:
                         if df['high'].iloc[-1] > target_long2:
-                            predict_price(prediction_time='30m')
+                            predict_price(prediction_time='15m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
                             send_to_telegram(f"돌파가격 : {target_long}")
                             predicted_buy_low_price = predicted_low_price
@@ -440,7 +448,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             waiting_buy_signal = True
                         else:
                             # 15분 뒤 가격 예측 및 텔레그램 전송
-                            predict_price(prediction_time='15m')
+                            predict_price(prediction_time='5m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
                             send_to_telegram(f"돌파가격 : {target_long}")
                             predicted_buy_low_price = predicted_low_price
@@ -451,8 +459,12 @@ def volatility_breakout_strategy(symbol, df, k_value):
                         long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2])/2 
                         buy_price = df['close'].iloc[-1]
                         if long_stop_loss > buy_price:
-                            waiting_buy_signal = False
                             send_to_telegram(f"손절가보다 매수가격이 더 작기에 최적매수가격을 재지정합니다.")
+                            predict_price(prediction_time='3m')
+                            send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
+                            send_to_telegram(f"돌파가격 : {target_long}")
+                            predicted_buy_low_price = predicted_low_price
+                            send_to_telegram(f"최적매수가격 : {predicted_buy_low_price}")
                         else:
                             long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
                             limit_order = place_limit_order(symbol, 'buy', long_quantity, df['close'].iloc[-1])
@@ -465,13 +477,13 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
 
     if sell_signal == False and is_doji == False:
-        if stoch_rsi_k.iloc[-1] > 0 and stoch_rsi_d.iloc[-1] > 5:
+        if stoch_rsi_k.iloc[-2] > 0 and stoch_rsi_d.iloc[-2] > 5:
             # 어제 종가보다 오늘 시가가 낮고, 오늘 저가가 목표 숏 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] > df['close'].iloc[-2]) or (df['low'].iloc[-1] < target_short2):
                 if df['low'].iloc[-1] < target_short:
                     if waiting_sell_signal == False:
                         if df['low'].iloc[-1] < target_short2:
-                            predict_price(prediction_time='30m')
+                            predict_price(prediction_time='15m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
                             send_to_telegram(f"돌파가격 : {target_short}")
                             predicted_sell_high_price = predicted_high_price
@@ -479,7 +491,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             waiting_sell_signal = True
                         else:
                         # 15분 뒤 가격 예측 및 텔레그램 전송
-                            predict_price(prediction_time='15m')
+                            predict_price(prediction_time='5m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
                             send_to_telegram(f"돌파가격 : {target_short}")
                             predicted_sell_high_price = predicted_high_price
@@ -490,8 +502,12 @@ def volatility_breakout_strategy(symbol, df, k_value):
                         short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2])/2
                         sell_price = df['close'].iloc[-1]
                         if short_stop_loss < sell_price:
-                            waiting_sell_signal = False
                             send_to_telegram(f"손절가보다 매도가격이 더 크기에 최적매도가격을 재지정합니다.")
+                            predict_price(prediction_time='3m')
+                            send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
+                            send_to_telegram(f"돌파가격 : {target_short}")
+                            predicted_sell_high_price = predicted_high_price
+                            send_to_telegram(f"최적매도가격 : {predicted_sell_high_price}")
                         else:
                             short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
                             limit_order = place_limit_order(symbol, 'sell', short_quantity, df['close'].iloc[-1])
@@ -616,7 +632,7 @@ def generate_ema_signals(symbol, df):
     if ema_buy_signal == False and Buy_conditions and ema_Buy_conditions and Previous_ema_Buy_conditions:
         if waiting_ema_buy_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
-            predict_price(prediction_time='5m')
+            predict_price(prediction_time='3m')
             send_to_telegram("ema 조건 충족")
             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
             ema_predicted_buy_low_price = predicted_low_price
@@ -643,7 +659,7 @@ def generate_ema_signals(symbol, df):
     elif ema_sell_signal == False and Sell_conditions and ema_Sell_conditions and Previous_ema_Sell_conditions:
         if waiting_ema_sell_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
-            predict_price(prediction_time='5m')
+            predict_price(prediction_time='3m')
             send_to_telegram("ema 조건 충족")
             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
             ema_predicted_sell_high_price = predicted_high_price
@@ -766,6 +782,56 @@ def filter_symbols(symbols):
 
     return selected_symbols
 
+
+us_long = False
+us_short = False
+def Ultra_Scalping():
+    global us_long, us_short, us_long_quantity, us_short_quantity, us_long_price, us_short_price, us_profit
+    df = get_candles(exchange, symbol, timeframe='15m', limit=50)
+    stoch_rsi_k, stoch_rsi_d = stochastic_rsi(df, period=14, smooth_k=3, smooth_d=3)
+    us_profit = 1.003
+    ema_21 = calculate_ema(df, 21)
+    volume_oscillator = calculate_volume_oscillator(df['volume'].astype(float))
+
+    # 최근 5개 값 추출
+    recent_oscillator = volume_oscillator[-5:-1]
+
+    # 35를 넘는지 확인
+    if not (recent_oscillator > 30).any():
+        if not us_long:
+            if ema_21.iloc[-1] > df['close'].iloc[-1]:
+                if stoch_rsi_k.iloc[-2] > 10 > stoch_rsi_d.iloc[-2]:
+                    us_long = True
+                    us_long_quantity = calculate_quantity(symbol) * 2
+                    us_long_price = df['close'].iloc[-1]
+                    place_limit_order(symbol, 'buy', us_long_quantity, df['close'].iloc[-1])
+        elif not us_short:
+            if ema_21.iloc[-1] < df['close'].iloc[-1]:
+                if stoch_rsi_k.iloc[-2] < 90 < stoch_rsi_d.iloc[-2]:
+                    us_short = True
+                    us_short_quantity = calculate_quantity(symbol) * 2
+                    us_short_price = df['close'].iloc[-1]
+                    place_limit_order(symbol, 'sell', us_short_quantity, df['close'].iloc[-1])
+
+    if us_long:
+        if df['close'].iloc[-1] > us_long_price * us_profit :
+            us_long = False
+            place_limit_order(symbol, 'sell', us_long_quantity, df['close'].iloc[-1])
+        elif us_long_price / 1.002 > df['close'].iloc[-1]:
+            us_long = False
+            place_market_order(symbol, 'sell', us_long_quantity)
+
+    if us_short:
+        if df['close'].iloc[-1] < us_short_price / us_profit :
+            us_short = False
+            place_limit_order(symbol, 'buy', us_short_quantity, df['close'].iloc[-1])
+        elif us_short_price * 1.002 < df['close'].iloc[-1]:
+            us_short = False
+            place_market_order(symbol, 'buy', us_short_quantity)
+
+
+
+
 # 매매 주기 (예: 1초마다 전략 실행)
 trade_interval = 1  # 초 단위
 count=0
@@ -779,16 +845,16 @@ while True:
             # 변동성 돌파 전략 실행
             volatility_breakout_strategy(symbol, df, k_value)
 
-            #EMA 기반 트레이딩 전략 실행
+            # EMA 기반 트레이딩 전략 실행
             generate_ema_signals(symbol, df)
 
+            # 초단타 실행
+            # Ultra_Scalping()
             schedule.run_pending()
 
-           
             if start == True:
-                # 변동성 조건 임의 계산 
                 send_to_telegram("***주의사항***\n\n현재는 이더리움(ETHUSDT)만 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
-
+                # 변동성 조건 임의 계산
                 range = (df['high'].iloc[-2] - df['low'].iloc[-2]) * k_value
                 target_long = df['close'].iloc[-2] + range
                 target_short = df['close'].iloc[-2] - range
@@ -800,7 +866,7 @@ while True:
                 stoch_rsi_k, stoch_rsi_d = stochastic_rsi(df, period=14, smooth_k=3, smooth_d=3)
                 rsi = calculate_rsi(df, period=14)
                 send_to_telegram(f"UTC : {datetime.datetime.now()}")
-                send_to_telegram(f"range : {range}\ntarget_long : {target_long}\ntarget_short : {target_short}\nema_9 : {ema_9.iloc[-1]}\nema_21 : {ema_21.iloc[-1]}\nema_54 : {ema_54.iloc[-1]}\nupper_band, lower_band : {upper_band.iloc[-1], lower_band.iloc[-1]}\nstoch_rsi_k, stoch_rsi_d : {stoch_rsi_k.iloc[-1], stoch_rsi_d.iloc[-1]}\nrsi : {rsi['rsi'].iloc[-1]}\n종가 : {df['close'].iloc[-1]}")
+                send_to_telegram(f"range : {range}\ntarget_long : {target_long}\ntarget_short : {target_short}\nema_9 : {ema_9.iloc[-1]}\nema_21 : {ema_21.iloc[-1]}\nema_54 : {ema_54.iloc[-1]}\nupper_band, lower_band : {upper_band.iloc[-1], lower_band.iloc[-1]}\nstoch_rsi_k, stoch_rsi_d : {stoch_rsi_k.iloc[-2], stoch_rsi_d.iloc[-2]}\nrsi : {rsi['rsi'].iloc[-1]}\n종가 : {df['close'].iloc[-1]}")
                 send_to_telegram(f"{symbol} 매매 시작")
                 start = False
             # 대기 시간
@@ -827,4 +893,4 @@ while True:
             send_to_telegram("오류 발생으로 매매 중지")
             count=0
         pass
-print("nohup python3 volatility_strategy_binance_auto.py > output.log &")
+print("pkill -f binanceETCauto.py && nohup python3 binanceETCauto.py > output.log 2>&1 &")
