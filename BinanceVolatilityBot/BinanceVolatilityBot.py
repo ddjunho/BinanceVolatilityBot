@@ -79,10 +79,13 @@ def handle(msg):
             send_to_telegram("/stop_ema_trading_strategy - EMA 기반 트레이딩 전략을 중지")
             send_to_telegram("/stop_scalping_strategy - stochastic_rsi단타 전략을 중지")
         elif msg['text'] =='/execute_volatility_breakout_strategy':
+            send_to_telegram("변동성 돌파 전략을 실행합니다.")
             execute_volatility_breakout_strategy = True
         elif msg['text'] =='/execute_ema_trading_strategy':
+            send_to_telegram("EMA 기반 트레이딩 전략을 실행합니다.")
             execute_ema_trading_strategy = True
         elif msg['text'] =='/execute_scalping_strategy':
+            send_to_telegram("stochastic_rsi단타 전략을 실행합니다.")
             execute_scalping_strategy = True
         elif msg['text'] =='/stop_volatility_breakout_strategy':
             send_to_telegram("변동성 돌파 전략을 중지합니다.")
@@ -821,7 +824,7 @@ def Ultra_Scalping():
     # 최근 5개 값 추출
     recent_oscillator = volume_oscillator[-5:-1]
 
-    # 35를 넘는지 확인
+    # 30를 넘는지 확인
     if not (recent_oscillator > 30).any():
         if not us_long:
             if ema_21.iloc[-1] > df['close'].iloc[-1]:
@@ -870,17 +873,14 @@ while True:
             
             if execute_volatility_breakout_strategy:
                 # 변동성 돌파 전략 코드 작성
-                send_to_telegram("변동성 돌파 전략을 실행합니다.")
                 volatility_breakout_strategy(symbol, df, k_value)
 
             if execute_ema_trading_strategy:
                 # EMA 기반 트레이딩 전략 코드 작성
-                send_to_telegram("EMA 기반 트레이딩 전략을 실행합니다.")
                 generate_ema_signals(symbol, df)
 
             if execute_scalping_strategy:
                 # 초단타 전략 코드 작성
-                send_to_telegram("stochastic_rsi단타 전략을 실행합니다.")
                 Ultra_Scalping()
             schedule.run_pending()
 
