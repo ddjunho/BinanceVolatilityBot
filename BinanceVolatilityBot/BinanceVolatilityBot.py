@@ -47,8 +47,8 @@ stop = False
 k_value = 0.55
 postponement = False
 execute_volatility_breakout_strategy = True
-execute_ema_trading_strategy = True
-execute_scalping_strategy = True
+execute_ema_trading_strategy = False
+execute_scalping_strategy = False
 def handle(msg):
     global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy
     content_type, chat_type, chat_id = telepot.glance(msg)
@@ -72,12 +72,7 @@ def handle(msg):
             postponement = True
             postpone_trading()
         elif msg['text'] =='/execute_and_stop':
-            send_to_telegram("/execute_volatility_breakout_strategy - 변동성 돌파 전략을 실행")
-            send_to_telegram("/execute_ema_trading_strategy - EMA 기반 트레이딩 전략을 실행")
-            send_to_telegram("/execute_scalping_strategy - stochastic_rsi단타 전략을 실행")
-            send_to_telegram("/stop_volatility_breakout_strategy - 변동성 돌파 전략을 중지")
-            send_to_telegram("/stop_ema_trading_strategy - EMA 기반 트레이딩 전략을 중지")
-            send_to_telegram("/stop_scalping_strategy - stochastic_rsi단타 전략을 중지")
+            send_to_telegram("/execute_volatility_breakout_strategy - 변동성 돌파 전략을 실행\n/execute_ema_trading_strategy - EMA 기반 트레이딩 전략을 실행\n/execute_scalping_strategy - stochastic_rsi단타 전략을 실행\n/stop_volatility_breakout_strategy - 변동성 돌파 전략을 중지\n/stop_ema_trading_strategy - EMA 기반 트레이딩 전략을 중지\n/stop_scalping_strategy - stochastic_rsi단타 전략을 중지")
         elif msg['text'] =='/execute_volatility_breakout_strategy':
             send_to_telegram("변동성 돌파 전략을 실행합니다.")
             execute_volatility_breakout_strategy = True
