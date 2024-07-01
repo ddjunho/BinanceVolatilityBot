@@ -46,8 +46,11 @@ Profit_Percentage = 150
 stop = False
 k_value = 0.55
 postponement = False
+execute_volatility_breakout_strategy = True
+execute_ema_trading_strategy = True
+execute_scalping_strategy = True
 def handle(msg):
-    global stop, k_value, leverage, Profit_Percentage, start, postponement
+    global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy
     content_type, chat_type, chat_id = telepot.glance(msg)
     if content_type == 'text':
         if msg['text'] == '/start':
@@ -62,12 +65,34 @@ def handle(msg):
             send_to_telegram('Stopping...')
             stop = True
         elif msg['text'] == '/help':
-            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인\n/postponing_trading - 거래연기하기')
+            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인\n/execute_and_stop - 전략별 실행 및 중지\n/postponing_trading - 거래연기하기')
         elif msg['text'] == '/predict':
             send_to_telegram(f'/predict_3m - 3분뒤 가격예측\n/predict_5m - 5분뒤 가격예측\n/predict_15m - 15분뒤 가격예측\n/predict_30m - 30분뒤 가격예측\n/predict_1h - 1시간뒤 가격예측\n/predict_6h - 6시간뒤 가격예측\n/predict_1d - 1일뒤 가격예측')
         elif msg['text'] == '/postponing_trading':
             postponement = True
             postpone_trading()
+        elif msg['text'] =='/execute_and_stop':
+            send_to_telegram("/execute_volatility_breakout_strategy - 변동성 돌파 전략을 실행")
+            send_to_telegram("/execute_ema_trading_strategy - EMA 기반 트레이딩 전략을 실행")
+            send_to_telegram("/execute_scalping_strategy - stochastic_rsi단타 전략을 실행")
+            send_to_telegram("/stop_volatility_breakout_strategy - 변동성 돌파 전략을 중지")
+            send_to_telegram("/stop_ema_trading_strategy - EMA 기반 트레이딩 전략을 중지")
+            send_to_telegram("/stop_scalping_strategy - stochastic_rsi단타 전략을 중지")
+        elif msg['text'] =='/execute_volatility_breakout_strategy':
+            execute_volatility_breakout_strategy = True
+        elif msg['text'] =='/execute_ema_trading_strategy':
+            execute_ema_trading_strategy = True
+        elif msg['text'] =='/execute_scalping_strategy':
+            execute_scalping_strategy = True
+        elif msg['text'] =='/stop_volatility_breakout_strategy':
+            send_to_telegram("변동성 돌파 전략을 중지합니다.")
+            execute_volatility_breakout_strategy = False
+        elif msg['text'] =='/stop_ema_trading_strategy':
+            send_to_telegram("EMA 기반 트레이딩 전략을 중지합니다.")
+            execute_ema_trading_strategy = False
+        elif msg['text'] =='/stop_scalping_strategy':
+            send_to_telegram("stochastic_rsi단타 전략을 중지합니다.")
+            execute_scalping_strategy = False
         elif msg['text'] == '/leverage':
             send_to_telegram('/leverage(1~10)')
         elif msg['text'] == '/leverage(1)':
@@ -800,32 +825,32 @@ def Ultra_Scalping():
     if not (recent_oscillator > 30).any():
         if not us_long:
             if ema_21.iloc[-1] > df['close'].iloc[-1]:
-                if stoch_rsi_k.iloc[-2] > 10 > stoch_rsi_d.iloc[-2]:
+                if stoch_rsi_k.iloc[-2] > 15 > stoch_rsi_d.iloc[-2]:
                     us_long = True
                     us_long_quantity = calculate_quantity(symbol) * 2
                     us_long_price = df['close'].iloc[-1]
                     place_limit_order(symbol, 'buy', us_long_quantity, df['close'].iloc[-1])
         elif not us_short:
             if ema_21.iloc[-1] < df['close'].iloc[-1]:
-                if stoch_rsi_k.iloc[-2] < 90 < stoch_rsi_d.iloc[-2]:
+                if stoch_rsi_k.iloc[-2] < 86 < stoch_rsi_d.iloc[-2]:
                     us_short = True
                     us_short_quantity = calculate_quantity(symbol) * 2
                     us_short_price = df['close'].iloc[-1]
                     place_limit_order(symbol, 'sell', us_short_quantity, df['close'].iloc[-1])
 
     if us_long:
-        if df['close'].iloc[-1] > us_long_price * us_profit :
+        if df['close'].iloc[-1] > ema_21.iloc[-1] :
             us_long = False
             place_limit_order(symbol, 'sell', us_long_quantity, df['close'].iloc[-1])
-        elif us_long_price / 1.002 > df['close'].iloc[-1]:
+        elif us_long_price > (df['low'].iloc[-1] + df['open'].iloc[-2]) / 2:
             us_long = False
             place_market_order(symbol, 'sell', us_long_quantity)
 
     if us_short:
-        if df['close'].iloc[-1] < us_short_price / us_profit :
+        if df['close'].iloc[-1] < ema_21.iloc[-1] :
             us_short = False
             place_limit_order(symbol, 'buy', us_short_quantity, df['close'].iloc[-1])
-        elif us_short_price * 1.002 < df['close'].iloc[-1]:
+        elif us_short_price  < (df['high'].iloc[-1] + df['open'].iloc[-2]) / 2:
             us_short = False
             place_market_order(symbol, 'buy', us_short_quantity)
 
@@ -837,19 +862,26 @@ trade_interval = 1  # 초 단위
 count=0
 start = True
 print('Autotrade_Start')
+
 while True:
     try:
         if not stop:
             df = get_candles(exchange, symbol, timeframe=timeframe, limit=100)
             
-            # 변동성 돌파 전략 실행
-            volatility_breakout_strategy(symbol, df, k_value)
+            if execute_volatility_breakout_strategy:
+                # 변동성 돌파 전략 코드 작성
+                send_to_telegram("변동성 돌파 전략을 실행합니다.")
+                volatility_breakout_strategy(symbol, df, k_value)
 
-            # EMA 기반 트레이딩 전략 실행
-            generate_ema_signals(symbol, df)
+            if execute_ema_trading_strategy:
+                # EMA 기반 트레이딩 전략 코드 작성
+                send_to_telegram("EMA 기반 트레이딩 전략을 실행합니다.")
+                generate_ema_signals(symbol, df)
 
-            # 초단타 실행
-            # Ultra_Scalping()
+            if execute_scalping_strategy:
+                # 초단타 전략 코드 작성
+                send_to_telegram("stochastic_rsi단타 전략을 실행합니다.")
+                Ultra_Scalping()
             schedule.run_pending()
 
             if start == True:
