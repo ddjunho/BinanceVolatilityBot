@@ -47,8 +47,8 @@ stop = False
 k_value = 0.55
 postponement = False
 execute_volatility_breakout_strategy = True
-execute_ema_trading_strategy = False
-execute_scalping_strategy = False
+execute_ema_trading_strategy = True
+execute_scalping_strategy = True
 def handle(msg):
     global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy
     content_type, chat_type, chat_id = telepot.glance(msg)
@@ -655,7 +655,7 @@ def generate_ema_signals(symbol, df):
     if ema_buy_signal == False and Buy_conditions and ema_Buy_conditions and Previous_ema_Buy_conditions:
         if waiting_ema_buy_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
-            predict_price(prediction_time='3m')
+            predict_price(prediction_time='5m')
             send_to_telegram("ema 조건 충족")
             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
             ema_predicted_buy_low_price = predicted_low_price
@@ -682,7 +682,7 @@ def generate_ema_signals(symbol, df):
     elif ema_sell_signal == False and Sell_conditions and ema_Sell_conditions and Previous_ema_Sell_conditions:
         if waiting_ema_sell_signal == False:
             # 5분 뒤 가격 예측 및 텔레그램 전송
-            predict_price(prediction_time='3m')
+            predict_price(prediction_time='5m')
             send_to_telegram("ema 조건 충족")
             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
             ema_predicted_sell_high_price = predicted_high_price
@@ -810,7 +810,7 @@ us_long = False
 us_short = False
 def Ultra_Scalping():
     global us_long, us_short, us_long_quantity, us_short_quantity, us_long_price, us_short_price, us_profit
-    df = get_candles(exchange, symbol, timeframe='15m', limit=50)
+    df = get_candles(exchange, symbol, timeframe=timeframe, limit=50)
     stoch_rsi_k, stoch_rsi_d = stochastic_rsi(df, period=14, smooth_k=3, smooth_d=3)
     us_profit = 1.003
     ema_21 = calculate_ema(df, 21)
