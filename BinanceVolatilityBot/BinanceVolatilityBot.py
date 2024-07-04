@@ -32,7 +32,7 @@ timeframe = '6h'
 
 # 레버리지 설정
 leverage = 4
-exchange.fapiPrivate_post_leverage({'symbol': symbol, 'leverage': leverage*2+2})
+exchange.fapiPrivatePostLeverage({'symbol': symbol, 'leverage': leverage*2+2})
 
 # 텔레그램으로 메시지를 보내는 함수
 def send_to_telegram(message):
