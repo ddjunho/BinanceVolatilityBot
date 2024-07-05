@@ -457,7 +457,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
         is_doji = False
     # 매수 및 매도 주문 로직
     if buy_signal == False and is_doji == False:
-        if stoch_rsi_k.iloc[-2]<100 and stoch_rsi_d.iloc[-2] < 95:
+        if (stoch_rsi_k.iloc[-2]<100 and stoch_rsi_d.iloc[-2] < 95) or (stoch_rsi_k.iloc[-3] == 100 and stoch_rsi_d.iloc[-3] == 100):
             # 어제 종가보다 오늘 시가가 높고, 오늘 고가가 목표 롱 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] < df['close'].iloc[-2]) or (df['high'].iloc[-1] > target_long2):
                 if df['high'].iloc[-1] > target_long:
@@ -500,7 +500,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             entry_time = datetime.datetime(now.year, now.month, now.day, now.hour, 0)
 
     if sell_signal == False and is_doji == False:
-        if stoch_rsi_k.iloc[-2] > 0 and stoch_rsi_d.iloc[-2] > 5:
+        if (stoch_rsi_k.iloc[-2] > 0 and stoch_rsi_d.iloc[-2] > 5) or (stoch_rsi_k.iloc[-3] == 0 and stoch_rsi_d.iloc[-3] == 0):
             # 어제 종가보다 오늘 시가가 낮고, 오늘 저가가 목표 숏 가격을 돌파한 경우 혹은 역추세 돌파시
             if (df['open'].iloc[-2] > df['close'].iloc[-2]) or (df['low'].iloc[-1] < target_short2):
                 if df['low'].iloc[-1] < target_short:
