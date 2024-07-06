@@ -48,7 +48,7 @@ k_value = 0.55
 postponement = False
 execute_volatility_breakout_strategy = True
 execute_ema_trading_strategy = True
-execute_scalping_strategy = True
+execute_scalping_strategy = False
 def handle(msg):
     global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy
     content_type, chat_type, chat_id = telepot.glance(msg)
