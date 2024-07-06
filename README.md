@@ -137,7 +137,7 @@ future['low'] = df['low'].iloc[-1]
 future['volume'] = df['volume'].iloc[-1]
 ```
 #### 예측 수행
-모델을 사용하여 예측을 수행합니다.
+모델을 사용하여 예측을 수행합니다.<br>
 forecast, conf_int = model.predict(n_periods=1, exogenous=[future.values], return_conf_int=True)
 
 #### 예측 결과 저장
@@ -152,8 +152,16 @@ predicted_low_price = conf_int[0][0]
 이 함수는 주어진 시간 간격 후의 종가를 예측하고, 신뢰 구간을 사용하여 고가와 저가를 추정하는 과정을 자동화합니다.<br><br>
 
 ### 리스크 관리
-#### 역추세 돌파시
-predict_price(prediction_time='30m')<br>
+#### 정해진 시간에 포지션 종료
+UTC 기준 00:00, 06:00, 12:00, 18:00에 봇이 잡은 모든 포지션은 종료됩니다.<br>
+datetime.datetime.now() >= entry_time + datetime.timedelta(hours=(6 - entry_time.hour % 6))
+
+#### 
+
+#### 역추세 돌파
+역추세 돌파시 K값은 기존값의 0.3을 더한 수치입니다.(0.55 + 0.3)<br>
+예측 또한 predict_price(prediction_time='15m')로 
+변동성이 심하다고 판단되어 보수적으로 지정하였습니다.<br>
 
 #### 과매수 및 과매도 신호
 스토캐스틱 RSI : RSI가 70을 넘어서면 과매수 상태로 간주될 수 있고, 30 밑으로 떨어지면 과매도 상태로 간주됩니다.<br>
@@ -183,14 +191,18 @@ def stochastic_rsi(data, period=14, smooth_k=3, smooth_d=3):
     stoch_rsi_d = stoch_rsi_k.rolling(window=smooth_d, center = False).mean()
     return stoch_rsi_k, stoch_rsi_d
 ```
-과매수 이탈 지점 : stoch_rsi_k.iloc[-1] < 100 and stoch_rsi_d.iloc[-1] < 95<br>
-과매도 이탈 지점 : stoch_rsi_k.iloc[-1] > 0 and stoch_rsi_d.iloc[-1] > 5<br>
-
+과매수 이탈 지점 : (stoch_rsi_k.iloc[-2]<100 and stoch_rsi_d.iloc[-2] < 95) or (stoch_rsi_k.iloc[-3] == 100 and stoch_rsi_d.iloc[-3] == 100)<br>
+과매도 이탈 지점 : (stoch_rsi_k.iloc[-2] > 0 and stoch_rsi_d.iloc[-2] > 5) or (stoch_rsi_k.iloc[-3] == 0 and stoch_rsi_d.iloc[-3] == 0)<br>
+<br>
+알수없는 이유로 정상값은 2개 이전값으로 나오니 이에 대해 알고 있다면 메일이나 이슈로 알려주세요.
 #### Profit_Percentage일정 이상 손익시 포지션 종료
 
-손절
-long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2])/2 
-short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2])/2
+#### 손절가
+long_stop_loss = (df['low'].iloc[-1] + df['open'].iloc[-2])/2 <br>
+short_stop_loss = (df['high'].iloc[-1] + df['open'].iloc[-2])/2<br>
+만약 손절가보다 예측가격이 더 벗어나있다면 predict_price(prediction_time='3m')으로 포지션 지점을 재지정합니다.
+
+#### 수수료 절약을 위한 지정가 주문시 채결이 되지 않을 경우 UTC 기준 00:00, 06:00, 12:00, 18:00에 취소됩니다.
 ## 자동매매 시작하기
 
 ### 패키지 설치
@@ -220,7 +232,8 @@ api_key = 'your_binance_api_key'
 api_secret = 'your_binance_api_secret'
 ```
 ```bash
-echo -e "api_key = 'your_binance_api_key'\napi_secret = 'your_binance_api_secret'" > BinanceVolatilityBot/binance_keys.py
+cd BinanceVolatilityBot
+echo -e "api_key = 'your_binance_api_key'\napi_secret = 'your_binance_api_secret'" > binance_keys.py
 ```
 ### Telegram 설정
 [BotFather](https://telegram.me/BotFather)를 통해 봇을 생성 후
@@ -233,7 +246,8 @@ token = 'your_telegram_bot_token'
 chat_id = 'your_telegram_chat_id'
 ```
 ```bash
-echo -e "token = 'your_telegram_bot_token'\nchat_id = 'your_telegram_chat_id'" > BinanceVolatilityBot/telepot_bot_id.py
+cd BinanceVolatilityBot
+echo -e "token = 'your_telegram_bot_token'\nchat_id = 'your_telegram_chat_id'" > telepot_bot_id.py
 ```
 ### Telegram 사용법
 이 Telegram 봇은 암호화폐 자동매매 시스템을 위해 설계되었습니다. 사용자가 Telegram을 통해 명령어를 입력하면, 해당 봇은 사용자가 설정한 조건에 따라 자동으로 암호화폐를 매매하는 기능을 제공합니다. 각 명령어를 정확히 입력하여 원하는 설정을 변경하거나 정보를 얻을 수 있습니다.
@@ -270,6 +284,7 @@ K 값 설정
 백그라운드로 BinanceVolatilityBot을 사용할 수 있습니다. 아래의 명령어를 사용합니다.
 
 ```bash
+cd BinanceVolatilityBot
 nohup python3 BinanceVolatilityBot.py > output.log &
 ```
 
