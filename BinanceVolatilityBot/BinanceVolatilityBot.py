@@ -491,7 +491,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             countertrend_long = True
                             predict_price(prediction_time='30m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
-                            send_to_telegram(f"돌파가격 : {target_long}")
+                            send_to_telegram(f"돌파가격 : {target_long2}")
                             predicted_buy_low_price = predicted_low_price
                             send_to_telegram(f"최적매수가격 : {predicted_buy_low_price}")
                             waiting_buy_signal = True
@@ -538,7 +538,7 @@ def volatility_breakout_strategy(symbol, df, k_value):
                             countertrend_short = True
                             predict_price(prediction_time='30m')
                             send_to_telegram(f"현재가 : {df['close'].iloc[-1]}")
-                            send_to_telegram(f"돌파가격 : {target_short}")
+                            send_to_telegram(f"돌파가격 : {target_short2}")
                             predicted_sell_high_price = predicted_high_price
                             send_to_telegram(f"최적매도가격 : {predicted_sell_high_price}")
                             waiting_sell_signal = True
@@ -591,19 +591,24 @@ def volatility_breakout_strategy(symbol, df, k_value):
         
         else:
             # 지정된 시간이 경과하면 주문을 종료하고 이익을 실현
-            if buy_signal and (datetime.datetime.now() >= entry_time + datetime.timedelta(hours=(6 - entry_time.hour % 6), minutes=1)):
-                place_limit_order(symbol, 'sell', long_quantity, df['close'].iloc[-1])
-                profit = (df['close'].iloc[-1] - buy_price) / buy_price * 100 * leverage  # leverage 적용
-                send_to_telegram(f"롱포지션 종료 \nQuantity: {long_quantity}\nprofit: {profit}")
-                buy_signal = False
-                countertrend_long = False
-
+            if buy_signal and (datetime.datetime.now() >= entry_time + datetime.timedelta(hours=(6 - entry_time.hour % 6), minutes=1)):                                          
+                predict_price(prediction_time='3m')
+                predicted_sell_high_price = predicted_high_price
+                if df['close'].iloc[-1] > predicted_sell_high_price:
+                    place_limit_order(symbol, 'sell', long_quantity, df['close'].iloc[-1])
+                    profit = (df['close'].iloc[-1] - buy_price) / buy_price * 100 * leverage  # leverage 적용
+                    send_to_telegram(f"롱포지션 종료 \nQuantity: {long_quantity}\nprofit: {profit}")
+                    buy_signal = False
+                    countertrend_long = False
             elif sell_signal and (datetime.datetime.now() >= entry_time + datetime.timedelta(hours=(6 - entry_time.hour % 6), minutes=1)):
-                place_limit_order(symbol, 'buy', short_quantity, df['close'].iloc[-1])
-                profit = -(df['close'].iloc[-1] - sell_price) / sell_price * 100 * leverage  # leverage 적용
-                send_to_telegram(f"숏포지션 종료 \nQuantity: {short_quantity}\nprofit: {profit}")
-                sell_signal = False
-                countertrend_short = False
+                predict_price(prediction_time='3m')
+                predicted_buy_low_price = predicted_low_price
+                if df['close'].iloc[-1] < predicted_buy_low_price:
+                    place_limit_order(symbol, 'buy', short_quantity, df['close'].iloc[-1])
+                    profit = -(df['close'].iloc[-1] - sell_price) / sell_price * 100 * leverage  # leverage 적용
+                    send_to_telegram(f"숏포지션 종료 \nQuantity: {short_quantity}\nprofit: {profit}")
+                    sell_signal = False
+                    countertrend_short = False
 
             # 과매수시 익절
             if buy_signal == True:
