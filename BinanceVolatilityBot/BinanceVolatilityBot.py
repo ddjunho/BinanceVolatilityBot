@@ -52,7 +52,7 @@ execute_scalping_strategy = False
 volatility_breakout_prediction_time = '15m'
 ema_trading_prediction_time = '15m'
 def handle(msg):
-    global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy, volatility_breakout_prediction_time, ema_trading_prediction_time
+    global stop, k_value, leverage, Profit_Percentage, start, postponement, execute_volatility_breakout_strategy, execute_ema_trading_strategy, execute_scalping_strategy, volatility_breakout_prediction_time, ema_trading_prediction_time, symbol
     content_type, chat_type, chat_id = telepot.glance(msg)
     if content_type == 'text':
         if msg['text'] == '/start':
@@ -67,7 +67,7 @@ def handle(msg):
             send_to_telegram('Stopping...')
             stop = True
         elif msg['text'] == '/help':
-            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인\n/execute_and_stop - 전략별 실행 및 중지\n/postponing_trading - 거래연기하기')
+            send_to_telegram(f'/start - 시작\n/stop - 중지\n/leverage(num) - leverage값을 설정\n 현재 leverage값 : {leverage}\n/set(k) - k 값을 설정\n 현재 k값 : {k_value}\n/Profit_Percentage(num) - 익절 수치를 설정\n 현재 Profit_Percentage값 : {Profit_Percentage}->{round(100/Profit_Percentage,2)}%\n/predict - 예언하기\n/Condition_fulfillment_symbols - 조건 충족 코인\n/execute_and_stop - 전략별 실행 및 중지\n/postponing_trading - 거래연기하기\n/symbol - 거래코인')
         elif msg['text'] == '/predict':
             send_to_telegram(f'/predict_3m - 3분뒤 가격예측\n/predict_5m - 5분뒤 가격예측\n/predict_15m - 15분뒤 가격예측\n/predict_30m - 30분뒤 가격예측\n/predict_1h - 1시간뒤 가격예측\n/predict_6h - 6시간뒤 가격예측\n/predict_1d - 1일뒤 가격예측\n/prediction_time - 전략별 예측 프레임')
         elif msg['text'] == '/postponing_trading':
@@ -230,6 +230,16 @@ def handle(msg):
             symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "ADAUSDT", "DOGEUSDT", "SOLUSDT", "DOTUSDT", "LTCUSDT", "MATICUSDT", "AVAXUSDT", "SHIBUSDT", "FILUSDT", "INJUSDT", "FETUSDT" ]
             filtered_symbols = filter_symbols(symbols)
             send_to_telegram(filtered_symbols)
+        elif msg['text'] == '/symbol':
+            send_to_telegram("/BTCUSDT", "/ETHUSDT")
+        elif msg['text'] == '/BTCUSDT':
+            symbol = 'BTCUSDT'
+            send_to_telegram('symbol -> {symbol}')
+        elif msg['text'] == '/ETHUSDT':
+            symbol = 'ETHUSDT'
+            send_to_telegram('symbol -> {symbol}')
+
+
 # 텔레그램 메시지 루프
 MessageLoop(bot, handle).run_as_thread()
 
@@ -934,7 +944,7 @@ while True:
             schedule.run_pending()
 
             if start == True:
-                send_to_telegram("***주의사항***\n\n현재는 이더리움(ETHUSDT)만 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
+                send_to_telegram("***주의사항***\n\n현재는 {symbol}을 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
                 # 변동성 조건 임의 계산
                 range = (df['high'].iloc[-2] - df['low'].iloc[-2]) * k_value
                 target_long = df['close'].iloc[-2] + range
