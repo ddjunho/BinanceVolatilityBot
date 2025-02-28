@@ -234,10 +234,10 @@ def handle(msg):
             send_to_telegram("/BTCUSDT", "/ETHUSDT")
         elif msg['text'] == '/BTCUSDT':
             symbol = 'BTCUSDT'
-            send_to_telegram('symbol -> {symbol}')
+            send_to_telegram(f'symbol -> {symbol}')
         elif msg['text'] == '/ETHUSDT':
             symbol = 'ETHUSDT'
-            send_to_telegram('symbol -> {symbol}')
+            send_to_telegram(f'symbol -> {symbol}')
 
 
 # 텔레그램 메시지 루프
@@ -944,7 +944,7 @@ while True:
             schedule.run_pending()
 
             if start == True:
-                send_to_telegram("***주의사항***\n\n현재는 {symbol}을 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
+                send_to_telegram(f"***주의사항***\n\n현재는 {symbol}을 거래하도록 설정되어 있습니다.\n\n선물 시장에서 거래를 수행하며, 매수와 공매도 양 방향 포지션으로 전략이 구현되어 있습니다.\n\n레버리지는 이익을 극대화할 수 있지만, 동시에 손실도 배수로 커질 수 있습니다. 따라서 레버리지 사용 시 신중을 기해야 합니다.\n\n실전 거래에 앞서 충분한 백테스팅과 시뮬레이션을 진행하여 전략의 신뢰성을 검증하는 것이 좋습니다.\n")
                 # 변동성 조건 임의 계산
                 range = (df['high'].iloc[-2] - df['low'].iloc[-2]) * k_value
                 target_long = df['close'].iloc[-2] + range
