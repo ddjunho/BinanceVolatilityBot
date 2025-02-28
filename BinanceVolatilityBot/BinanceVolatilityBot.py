@@ -231,7 +231,7 @@ def handle(msg):
             filtered_symbols = filter_symbols(symbols)
             send_to_telegram(filtered_symbols)
         elif msg['text'] == '/symbol':
-            send_to_telegram("/BTCUSDT", "/ETHUSDT")
+            send_to_telegram(f"/BTCUSDT, /ETHUSDT")
         elif msg['text'] == '/BTCUSDT':
             symbol = 'BTCUSDT'
             send_to_telegram(f'symbol -> {symbol}')
