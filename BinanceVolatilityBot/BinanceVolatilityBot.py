@@ -27,7 +27,7 @@ exchange = ccxt.binance({
 })
 
 # 트레이딩 페어 및 타임프레임 설정
-symbol = 'ETHUSDT'
+symbol = 'BTCUSDT'
 timeframe = '6h'
 
 # 레버리지 설정
@@ -42,7 +42,7 @@ def send_to_telegram(message):
         send_to_telegram(f"An error occurred while sending to Telegram: {e}")
 
 
-Profit_Percentage = 140
+Profit_Percentage = 100
 stop = False
 k_value = 0.65
 postponement = False
@@ -674,6 +674,45 @@ def volatility_breakout_strategy(symbol, df, k_value):
                     waiting_sell_signal = False
                     countertrend_short = False
 
+
+
+bands_buy_signal = False
+bands_sell_signal = False
+def bollinger_bands_signals(symbol, df):
+    global bands_buy_signal, bands_sell_signal
+    global bands_buy_price, bands_sell_price
+    global bands_short_quantity, bands_long_quantity
+    upper_band, lower_band = calculate_bollinger_bands(df, window=10, num_std_dev=3.5)
+    ema_21 = calculate_ema(df, 21)
+    if bands_buy_signal == False or bands_sell_signal == False:
+        if upper_band.iloc[-1] < df['high'].iloc[-1]:
+            bands_short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+            place_limit_order(symbol, 'sell', bands_short_quantity, df['close'].iloc[-1])
+            bands_sell_price = df['close'].iloc[-1]
+            send_to_telegram("밴드 이탈")
+            send_to_telegram(f"매도 - Price: {bands_sell_price}, Quantity: {bands_short_quantity}")
+            bands_sell_signal = True
+            
+        if lower_band.iloc[-1] > df['low'].iloc[-1]:
+            bands_long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
+            place_limit_order(symbol, 'buy', bands_long_quantity, df['close'].iloc[-1])
+            bands_buy_price = df['close'].iloc[-1]
+            send_to_telegram("밴드 이탈")
+            send_to_telegram(f"매수 - Price: {bands_buy_price}, Quantity: {bands_long_quantity}")
+            bands_buy_signal = True
+
+    if bands_buy_signal:
+        if df['close'].iloc[-1] > ema_21.iloc[-1]:
+            place_limit_order(symbol, 'sell', bands_long_quantity, df['close'].iloc[-1])
+            profit = (df['close'].iloc[-1] - bands_buy_price) / bands_buy_price * 100 * leverage  # leverage 적용
+            send_to_telegram(f"밴드전략 롱포지션 종료 \nQuantity: {bands_long_quantity}\nprofit: {profit}")
+
+    if bands_sell_signal:
+        if df['close'].iloc[-1] < ema_21.iloc[-1]:
+            place_limit_order(symbol, 'buy', bands_short_quantity, df['close'].iloc[-1])
+            profit = -(df['close'].iloc[-1] - bands_sell_price) / bands_sell_price * 100 * leverage  # leverage 적용
+            send_to_telegram(f"밴드전략 숏포지션 종료 \nQuantity: {bands_short_quantity}\nprofit: {profit}")
+
 ema_buy_signal = False
 ema_sell_signal = False
 waiting_ema_buy_signal = False
@@ -933,6 +972,8 @@ while True:
             if execute_volatility_breakout_strategy:
                 # 변동성 돌파 전략 코드 작성
                 volatility_breakout_strategy(symbol, df, k_value)
+            #if execute_bollinger_bands_signals:
+                bollinger_bands_signals(symbol, df)
 
             if execute_ema_trading_strategy:
                 # EMA 기반 트레이딩 전략 코드 작성
@@ -982,8 +1023,7 @@ while True:
         send_to_telegram(f"An error occurred: {e}")
         count+=1
         if count==5:
-            stop = True
-            send_to_telegram("오류 발생으로 매매 중지")
+            send_to_telegram("오류 발생으로 매매 중지 권장")
             count=0
         pass
 print("pkill -f BinanceVolatilityBot.py && nohup python3 BinanceVolatilityBot.py > output.log 2>&1 &")
