@@ -684,7 +684,7 @@ def bollinger_bands_signals(symbol, df):
     global bands_short_quantity, bands_long_quantity
     upper_band, lower_band = calculate_bollinger_bands(df, window=10, num_std_dev=3.5)
     ema_21 = calculate_ema(df, 21)
-    if bands_buy_signal == False or bands_sell_signal == False:
+    if bands_sell_signal == False:
         if upper_band.iloc[-1] < df['high'].iloc[-1]:
             bands_short_quantity = calculate_quantity(symbol) * (leverage - 0.2)
             place_limit_order(symbol, 'sell', bands_short_quantity, df['close'].iloc[-1])
@@ -693,6 +693,7 @@ def bollinger_bands_signals(symbol, df):
             send_to_telegram(f"매도 - Price: {bands_sell_price}, Quantity: {bands_short_quantity}")
             bands_sell_signal = True
             
+    if bands_buy_signal == False:
         if lower_band.iloc[-1] > df['low'].iloc[-1]:
             bands_long_quantity = calculate_quantity(symbol) * (leverage - 0.2)
             place_limit_order(symbol, 'buy', bands_long_quantity, df['close'].iloc[-1])
@@ -700,6 +701,7 @@ def bollinger_bands_signals(symbol, df):
             send_to_telegram("밴드 이탈")
             send_to_telegram(f"매수 - Price: {bands_buy_price}, Quantity: {bands_long_quantity}")
             bands_buy_signal = True
+
 
     if bands_buy_signal:
         if df['close'].iloc[-1] > ema_21.iloc[-1]:
