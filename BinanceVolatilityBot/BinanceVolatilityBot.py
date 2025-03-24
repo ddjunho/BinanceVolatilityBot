@@ -975,7 +975,7 @@ while True:
                 # 변동성 돌파 전략 코드 작성
                 volatility_breakout_strategy(symbol, df, k_value)
             #if execute_bollinger_bands_signals:
-                bollinger_bands_signals(symbol, df)
+                #bollinger_bands_signals(symbol, df)
 
             if execute_ema_trading_strategy:
                 # EMA 기반 트레이딩 전략 코드 작성
